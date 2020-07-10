@@ -134,17 +134,17 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
 
 
             var allToppings = await repository.GetAllAsync<Topping>();
-            Assert.AreEqual(4, allToppings.Count());
+            Assert.AreEqual(4, allToppings.Count);
 
 
             var extraCostToppings = await repository.GetAllAsync<Topping>(x => x.AdditionalCost > 0);
-            Assert.AreEqual(1, extraCostToppings.Count());
+            Assert.AreEqual(1, extraCostToppings.Count);
 
 
             // Where
             var freeToppings = new QueryBuilder<Topping>().Where(x => x.AdditionalCost.Equals(0)).Build();
             var inactiveToppings = await repository.GetAllAsync(freeToppings);
-            Assert.AreEqual(3, inactiveToppings.Count());
+            Assert.AreEqual(3, inactiveToppings.Count);
 
 
             // OrderBy
@@ -187,10 +187,10 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             await AddDefaultMenuItems(options);
 
 
-            var toppings = await repository.GetAllWithSelectAsync(
+            var toppings = await repository.GetAllWithSelectAsync<Topping, string>(
                 new QueryBuilder<Topping>().Select(x => x.Name).Build());
 
-            var firstTopping = (string) toppings.FirstOrDefault();
+            var firstTopping = toppings.FirstOrDefault();
             Assert.AreEqual("Bacon", firstTopping);
         }
 

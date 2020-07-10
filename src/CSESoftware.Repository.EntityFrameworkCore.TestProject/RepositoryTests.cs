@@ -34,7 +34,8 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             repository.Create(new Topping
             {
                 Name = "Canadian Bacon",
-                AdditionalCost = 2.5
+                AdditionalCost = 2.5,
+                IsActive = false
             });
             await repository.SaveAsync();
 
@@ -44,6 +45,7 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual("Canadian Bacon", result.FirstOrDefault()?.Name);
             Assert.AreEqual(2.5, result.FirstOrDefault()?.AdditionalCost);
+            Assert.IsTrue(result.FirstOrDefault()?.IsActive ?? false);
             Assert.IsTrue(result.FirstOrDefault()?.CreatedDate > DateTime.UtcNow.AddSeconds(-3));
             Assert.IsTrue(result.FirstOrDefault()?.ModifiedDate > DateTime.UtcNow.AddSeconds(-3));
             Assert.IsTrue(result.First().IsActive);
@@ -75,6 +77,7 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
 
             Assert.AreEqual("Super Canadian Bacon", updatedTopping.Name);
             Assert.AreEqual(2.5, updatedTopping.AdditionalCost);
+            Assert.AreNotEqual(topping.ModifiedDate, updatedTopping.ModifiedDate);
         }
 
         [TestMethod]
