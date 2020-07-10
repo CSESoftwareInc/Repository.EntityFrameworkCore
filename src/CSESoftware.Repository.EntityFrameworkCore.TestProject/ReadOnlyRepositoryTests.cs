@@ -49,19 +49,19 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             {
                 Id = 1,
                 Name = "Pan Crust",
-                AdditionalCharge = 1,
+                AdditionalCost = 1,
             },
             new Crust
             {
                 Id = 2,
                 Name = "Thin Crust",
-                AdditionalCharge = 0,
+                AdditionalCost = 0,
             },
             new Crust
             {
                 Id = 3,
                 Name = "Regular Crust",
-                AdditionalCharge = 0,
+                AdditionalCost = 0,
             }
         };
 
@@ -195,19 +195,45 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
         }
 
         [TestMethod]
-        public async Task GetFirstAsyncTest()
+        public async Task GetFirstAsyncQueryTest()
         {
             var options = GetOptions();
             var repository = GetReadOnlyRepository(options);
             await AddDefaultMenuItems(options);
 
-            var result = await repository.GetFirstAsync<Pizza>();
+            var result = await repository.GetFirstAsync(new QueryBuilder<Pizza>().Where(x => x.CrustId == 3).Build());
 
-            Assert.AreEqual("Pan Sausage", result.Name);
+            Assert.AreEqual("Hawaiian", result.Name);
         }
 
         [TestMethod]
-        public async Task GetCountAsyncTest()
+        public async Task GetFirstAsyncFilterTest()
+        {
+            var options = GetOptions();
+            var repository = GetReadOnlyRepository(options);
+            await AddDefaultMenuItems(options);
+
+            var result = await repository.GetFirstAsync<Pizza>(x => x.CrustId == 3);
+
+            Assert.AreEqual("Hawaiian", result.Name);
+        }
+
+        [TestMethod]
+        public async Task GetCountAsyncQueryTest()
+        {
+            var options = GetOptions();
+            var repository = GetReadOnlyRepository(options);
+            await AddDefaultMenuItems(options);
+
+            var result1 = await repository.GetCountAsync(new QueryBuilder<Topping>().Where(x => x.Id == 1).Build());
+            var result2 = await repository.GetCountAsync(new QueryBuilder<Topping>().Where(x => x.AdditionalCost > 0).Build());
+
+            Assert.AreEqual(1, result1);
+            Assert.AreEqual(1, result2);
+        }
+
+        [TestMethod]
+        public async Task GetCountAsyncFilterTest()
         {
             var options = GetOptions();
             var repository = GetReadOnlyRepository(options);
@@ -223,7 +249,23 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
         }
 
         [TestMethod]
-        public async Task GetExistsAsyncTest()
+        public async Task GetExistsAsyncQueryTest()
+        {
+            var options = GetOptions();
+            var repository = GetReadOnlyRepository(options);
+            await AddDefaultMenuItems(options);
+
+            var result1 = await repository.GetExistsAsync(new QueryBuilder<Topping>().Where(x => x.Name.Equals("Bacon")).Build());
+            var result2 = await repository.GetExistsAsync(new QueryBuilder<Topping>().Where(x => x.Id > 2).Build());
+            var result3 = await repository.GetExistsAsync(new QueryBuilder<Topping>().Where(x => x.AdditionalCost < -1).Build());
+
+            Assert.IsTrue(result1);
+            Assert.IsTrue(result2);
+            Assert.IsFalse(result3);
+        }
+
+        [TestMethod]
+        public async Task GetExistsAsyncFilterTest()
         {
             var options = GetOptions();
             var repository = GetReadOnlyRepository(options);
