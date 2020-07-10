@@ -6,7 +6,7 @@
     <PackageId>CSESoftware.Repository.EntityFrameworkCore</PackageId>
     <Authors>CSE Software, Inc.</Authors>
     <Copyright>2020 CSE Software, Inc.</Copyright>
-    <Version>2.0.0-beta1</Version>
+    <Version>2.0.0-beta2</Version>
     <PackageIcon>packageIcon.png</PackageIcon>
     <PackageIconUrl />
     <Description>The Entity Framework Core implementation of CSESoftware.Repository.</Description>
@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <PackageReference Include="CSESoftware.Core" Version="2.0.0-Beta1" />
-    <PackageReference Include="CSESoftware.Repository" Version="2.0.0-beta4" />
+    <PackageReference Include="CSESoftware.Repository" Version="2.0.0-beta5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.5" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.5" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />

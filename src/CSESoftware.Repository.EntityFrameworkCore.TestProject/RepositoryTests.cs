@@ -57,11 +57,12 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var options = GetOptions();
             var repository = GetRepository(options);
 
-            repository.Create(new Topping
+            var initialTopping = new Topping
             {
                 Name = "Canadian Bacon",
                 AdditionalCost = 2.5
-            });
+            };
+            repository.Create(initialTopping);
             await repository.SaveAsync();
 
 
@@ -77,7 +78,7 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
 
             Assert.AreEqual("Super Canadian Bacon", updatedTopping.Name);
             Assert.AreEqual(2.5, updatedTopping.AdditionalCost);
-            Assert.AreNotEqual(topping.ModifiedDate, updatedTopping.ModifiedDate);
+            Assert.AreNotEqual(initialTopping.ModifiedDate, updatedTopping.ModifiedDate);
         }
 
         [TestMethod]
