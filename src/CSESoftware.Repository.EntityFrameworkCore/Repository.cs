@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSESoftware.Core.Entity;
-using CSESoftware.Repository.EntityFrameworkCore.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace CSESoftware.Repository.EntityFrameworkCore
@@ -18,41 +17,23 @@ namespace CSESoftware.Repository.EntityFrameworkCore
         public virtual void Create<TEntity>(TEntity entity)
             where TEntity : class, IEntity
         {
-            if (entity is IActiveEntity activeEntity)
-                entity = PrepareService.SetIsActiveToTrue<TEntity>(activeEntity);
-
-            if (entity is IModifiedEntity modifiedEntity)
-                entity = PrepareService.SetCreatedDateToNow<TEntity>(modifiedEntity);
-
+            entity.CreateSetup();
             Context.Set<TEntity>().Add(entity);
         }
 
         public virtual void Create<TEntity>(List<TEntity> entities)
             where TEntity : class, IEntity
         {
-            var entitiesToSave = new List<TEntity>();
-
             foreach (var entity in entities)
-            {
-                var tempEntity = entity;
+                entity.CreateSetup();
 
-                if (entity is IActiveEntity activeEntity)
-                    tempEntity = PrepareService.SetIsActiveToTrue<TEntity>(activeEntity);
-
-                if (entity is IModifiedEntity modifiedEntity)
-                    tempEntity = PrepareService.SetCreatedDateToNow<TEntity>(modifiedEntity);
-
-                entitiesToSave.Add(tempEntity);
-            }
-
-            Context.Set<TEntity>().AddRange(entitiesToSave);
+            Context.Set<TEntity>().AddRange(entities);
         }
 
         public virtual void Update<TEntity>(TEntity entity)
             where TEntity : class, IEntity
         {
-            if (entity is IModifiedEntity modifiedEntity)
-                entity = PrepareService.SetModifiedDateToNow<TEntity>(modifiedEntity);
+            entity.UpdateSetup();
             Context.Set<TEntity>().Attach(entity);
             Context.Entry(entity).State = EntityState.Modified;
         }
@@ -60,28 +41,17 @@ namespace CSESoftware.Repository.EntityFrameworkCore
         public virtual void Update<TEntity>(List<TEntity> entities)
             where TEntity : class, IEntity
         {
-            var entitiesToSave = new List<TEntity>();
+            Context.Set<TEntity>().AttachRange(entities);
 
             foreach (var entity in entities)
             {
-                var tempEntity = entity;
-
-                if (entity is IModifiedEntity modifiedEntity)
-                    tempEntity = PrepareService.SetModifiedDateToNow<TEntity>(modifiedEntity);
-
-                entitiesToSave.Add(tempEntity);
-            }
-
-            Context.Set<TEntity>().AttachRange(entitiesToSave);
-
-            foreach (var entity in entitiesToSave)
-            {
+                entity.UpdateSetup();
                 Context.Entry(entity).State = EntityState.Modified;
             }
         }
 
-        public virtual void Delete<TEntity>(object id)
-            where TEntity : class, IEntityWithId
+        public virtual void Delete<TEntity, T>(T id)
+            where TEntity : class, IEntityWithId<T>
         {
             var entity = Context.Set<TEntity>().Find(id);
             Delete(entity);
