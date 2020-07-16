@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CSESoftware.Core" Version="2.0.0-beta3" />
-    <PackageReference Include="CSESoftware.Repository" Version="2.0.0-beta6" />
+    <PackageReference Include="CSESoftware.Core" Version="2.0.0" />
+    <PackageReference Include="CSESoftware.Repository" Version="2.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.5" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.1.2" />
