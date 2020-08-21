@@ -34,14 +34,17 @@ namespace CSESoftware.Repository.EntityFrameworkCore
             where TEntity : class, IEntity
         {
             entity.UpdateSetup();
-            Context.Set<TEntity>().Attach(entity);
+            if (Context.Entry(entity).State == EntityState.Detached)
+                Context.Set<TEntity>().Attach(entity);
+
             Context.Entry(entity).State = EntityState.Modified;
         }
 
         public virtual void Update<TEntity>(List<TEntity> entities)
             where TEntity : class, IEntity
         {
-            Context.Set<TEntity>().AttachRange(entities);
+            Context.Set<TEntity>().AttachRange(
+                entities.Where(x => Context.Entry(x).State == EntityState.Detached));
 
             foreach (var entity in entities)
             {
@@ -62,9 +65,8 @@ namespace CSESoftware.Repository.EntityFrameworkCore
         {
             var dbSet = Context.Set<TEntity>();
             if (Context.Entry(entity).State == EntityState.Detached)
-            {
                 dbSet.Attach(entity);
-            }
+
             dbSet.Remove(entity);
         }
 
@@ -83,9 +85,16 @@ namespace CSESoftware.Repository.EntityFrameworkCore
             Context.Set<TEntity>().RemoveRange(Context.Set<TEntity>().Where(filter));
         }
 
-        public virtual Task SaveAsync()
+        public virtual async Task SaveAsync()
         {
-            return Context.SaveChangesAsync();
+            await Context.SaveChangesAsync();
+            DetachAllEntities();
+        }
+
+        private void DetachAllEntities()
+        {
+            Context.ChangeTracker.Entries().ToList()
+                .ForEach(x => x.State = EntityState.Detached);
         }
     }
 }
