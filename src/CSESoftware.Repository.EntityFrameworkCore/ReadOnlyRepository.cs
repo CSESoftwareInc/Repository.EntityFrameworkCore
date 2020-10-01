@@ -22,10 +22,11 @@ namespace CSESoftware.Repository.EntityFrameworkCore
         protected IQueryable<TEntity> GetQueryable<TEntity>(IQuery<TEntity> filter)
             where TEntity : class, IEntity
         {
-            if (filter == null) filter = new Query<TEntity>
-            {
-                Include = new List<Expression<Func<TEntity, object>>>()
-            };
+            if (filter == null)
+                filter = new Query<TEntity>
+                {
+                    Include = new List<Expression<Func<TEntity, object>>>()
+                };
 
             IQueryable<TEntity> query = Context.Set<TEntity>();
 
@@ -33,6 +34,9 @@ namespace CSESoftware.Repository.EntityFrameworkCore
                 query = query.Where(filter.Predicate);
 
             query = filter.Include.Aggregate(query, (current, property) => current.Include(property));
+
+            if (filter.Distinct)
+                query = query.Distinct();
 
             if (filter.OrderBy != null)
                 query = filter.OrderBy(query);
@@ -51,10 +55,12 @@ namespace CSESoftware.Repository.EntityFrameworkCore
         {
             var query = GetQueryable(filter);
 
-            if (filter?.Select != null)
-                return query.Select(filter.Select);
+            if (filter?.Select == null) return query;
 
-            return query;
+            if(filter?.Distinct ?? false)
+                return query.Select(filter.Select).Distinct();
+
+            return query.Select(filter.Select);
         }
         public virtual async Task<List<TEntity>> GetAllAsync<TEntity>(IQuery<TEntity> filter)
             where TEntity : class, IEntity
@@ -71,12 +77,7 @@ namespace CSESoftware.Repository.EntityFrameworkCore
         public virtual async Task<TEntity> GetFirstAsync<TEntity>(IQuery<TEntity> filter)
             where TEntity : class, IEntity
         {
-            return await GetQueryable(new QueryBuilder<TEntity>()
-                .Where(filter?.Predicate)
-                .Include(filter?.Include)
-                .OrderBy(filter?.OrderBy)
-                .Build())
-                .FirstOrDefaultAsync();
+            return await GetQueryable(filter).FirstOrDefaultAsync();
         }
 
         public virtual async Task<TEntity> GetFirstAsync<TEntity>(Expression<Func<TEntity, bool>> filter = null)

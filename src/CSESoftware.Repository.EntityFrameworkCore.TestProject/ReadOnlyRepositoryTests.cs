@@ -111,14 +111,9 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
         {
             var repo = new Repository<DbContext>(new DbContext(options));
 
-            foreach (var crust in Crusts)
-                repo.Create(crust);
-
-            foreach (var topping in Toppings)
-                repo.Create(topping);
-
-            foreach (var pizza in Pizzas)
-                repo.Create(pizza);
+            repo.Create(Crusts);
+            repo.Create(Toppings);
+            repo.Create(Pizzas);
 
             await repo.SaveAsync();
         }
@@ -148,11 +143,28 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
 
 
             // OrderBy
-            var pizzasOrderedByCostQuery = new QueryBuilder<Pizza>().OrderBy( x => x.OrderBy(y => y.Cost)).Build();
+            var pizzasOrderedByCostQuery = new QueryBuilder<Pizza>().OrderBy(x => x.Cost).Build();
             var pizzasOrderedByCost = (await repository.GetAllAsync(pizzasOrderedByCostQuery)).ToList();
             Assert.AreEqual(8, pizzasOrderedByCost[0].Cost);
             Assert.AreEqual(10, pizzasOrderedByCost[1].Cost);
             Assert.AreEqual(12, pizzasOrderedByCost[2].Cost);
+
+
+            // OrderBy Descending
+            var pizzasOrderedByCostDescendingQuery = new QueryBuilder<Pizza>().OrderByDescending(x => x.Cost).Build();
+            var pizzasOrderedByCostDescending = (await repository.GetAllAsync(pizzasOrderedByCostDescendingQuery)).ToList();
+            Assert.AreEqual(12, pizzasOrderedByCostDescending[0].Cost);
+            Assert.AreEqual(10, pizzasOrderedByCostDescending[1].Cost);
+            Assert.AreEqual(8, pizzasOrderedByCostDescending[2].Cost);
+
+
+            // Then By
+            var toppingsOrderedByCostThenNameQuery = new QueryBuilder<Topping>().OrderBy(x => x.AdditionalCost).ThenBy(x => x.Name).Build();
+            var toppingsOrderedByCostThenName = await repository.GetAllAsync(toppingsOrderedByCostThenNameQuery);
+
+            Assert.AreEqual(0, toppingsOrderedByCostThenName.First().AdditionalCost);
+            Assert.AreEqual(.5, toppingsOrderedByCostThenName.Last().AdditionalCost);
+            Assert.AreEqual("Pineapple", toppingsOrderedByCostThenName[1].Name);
 
 
             // Include
@@ -192,6 +204,11 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
 
             var firstTopping = toppings.FirstOrDefault();
             Assert.AreEqual("Bacon", firstTopping);
+
+
+            var toppingsDistinct = await repository.GetAllWithSelectAsync<Topping, double>(
+                new QueryBuilder<Topping>().Where(x => x.AdditionalCost.Equals(0)).Select(x => x.AdditionalCost).Distinct().Build());
+            Assert.AreEqual(1, toppingsDistinct.Count);
         }
 
         [TestMethod]
