@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CSESoftware.Repository.Builder;
 using CSESoftware.Repository.EntityFrameworkCore.TestProject.Setup;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using DbContext = CSESoftware.Repository.EntityFrameworkCore.TestProject.Setup.DbContext;
 
 namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
@@ -111,15 +111,9 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
         {
             var repo = new Repository<DbContext>(new DbContext(options));
 
-            foreach (var crust in Crusts)
-                repo.Create(crust);
-
-            foreach (var topping in Toppings)
-                repo.Create(topping);
-
-            foreach (var pizza in Pizzas)
-                repo.Create(pizza);
-
+            repo.Create(Crusts);
+            repo.Create(Toppings);
+            repo.Create(Pizzas);
             await repo.SaveAsync();
         }
 
@@ -187,12 +181,32 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             await AddDefaultMenuItems(options);
 
 
-            var toppings = await repository.GetAllWithSelectAsync<Topping, string>(
-                new QueryBuilder<Topping>().Select(x => x.Name).Build());
+            var toppings = await repository.GetAllWithSelectAsync(
+                new QueryBuilder<Topping>()
+                    .Select(x => x.Name)
+                    .Build());
 
             var firstTopping = toppings.FirstOrDefault();
             Assert.AreEqual("Bacon", firstTopping);
         }
+
+        [TestMethod]
+        public async Task GetAllWithSelectIdsTest()
+        {
+            var options = GetOptions();
+            var repository = GetReadOnlyRepository(options);
+            await AddDefaultMenuItems(options);
+
+
+            var toppings = await repository.GetAllWithSelectAsync(
+                new QueryBuilder<Topping>()
+                    .Select(x => x.Id)
+                    .Build());
+
+            var firstToppingId = toppings.FirstOrDefault();
+            Assert.AreEqual(1, firstToppingId);
+        }
+
 
         [TestMethod]
         public async Task GetFirstAsyncQueryTest()
