@@ -1,11 +1,11 @@
-﻿using System;
+﻿using CSESoftware.Core.Entity;
+using CSESoftware.Repository.Builder;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using CSESoftware.Core.Entity;
-using CSESoftware.Repository.Builder;
-using Microsoft.EntityFrameworkCore;
 
 namespace CSESoftware.Repository.EntityFrameworkCore
 {
@@ -46,43 +46,38 @@ namespace CSESoftware.Repository.EntityFrameworkCore
             return query;
         }
 
-        protected IQueryable<object> GetQueryableSelect<TEntity>(IQuery<TEntity> filter = null)
+        protected IQueryable<TOut> GetQueryableSelect<TEntity, TOut>(IQueryWithSelect<TEntity, TOut> filter = null)
             where TEntity : class, IEntity
         {
+            if (filter?.Select == null)
+                throw new ArgumentException("Select not found");
+
             var query = GetQueryable(filter);
-
-            if (filter?.Select != null)
-                return query.Select(filter.Select);
-
-            return query;
-        }
-        public virtual async Task<List<TEntity>> GetAllAsync<TEntity>(IQuery<TEntity> filter)
-            where TEntity : class, IEntity
-        {
-            return await GetQueryable(filter).ToListAsync();
+            return query.Select(filter.Select);
         }
 
-        public virtual async Task<List<TEntity>> GetAllAsync<TEntity>(Expression<Func<TEntity, bool>> filter = null)
+        public virtual Task<List<TEntity>> GetAllAsync<TEntity>(IQuery<TEntity> filter)
             where TEntity : class, IEntity
         {
-            return await GetAllAsync(new QueryBuilder<TEntity>().Where(filter).Build());
+            return GetQueryable(filter).ToListAsync();
         }
 
-        public virtual async Task<TEntity> GetFirstAsync<TEntity>(IQuery<TEntity> filter)
+        public virtual Task<List<TEntity>> GetAllAsync<TEntity>(Expression<Func<TEntity, bool>> filter = null)
             where TEntity : class, IEntity
         {
-            return await GetQueryable(new QueryBuilder<TEntity>()
-                .Where(filter?.Predicate)
-                .Include(filter?.Include)
-                .OrderBy(filter?.OrderBy)
-                .Build())
-                .FirstOrDefaultAsync();
+            return GetAllAsync(new QueryBuilder<TEntity>().Where(filter).Build());
         }
 
-        public virtual async Task<TEntity> GetFirstAsync<TEntity>(Expression<Func<TEntity, bool>> filter = null)
+        public virtual Task<TEntity> GetFirstAsync<TEntity>(IQuery<TEntity> filter)
             where TEntity : class, IEntity
         {
-            return await GetFirstAsync(new QueryBuilder<TEntity>()
+            return GetQueryable(filter).FirstOrDefaultAsync();
+        }
+
+        public virtual Task<TEntity> GetFirstAsync<TEntity>(Expression<Func<TEntity, bool>> filter = null)
+            where TEntity : class, IEntity
+        {
+            return GetFirstAsync(new QueryBuilder<TEntity>()
                 .Where(filter)
                 .Build());
         }
@@ -111,10 +106,14 @@ namespace CSESoftware.Repository.EntityFrameworkCore
             return GetQueryable(new QueryBuilder<TEntity>().Where(filter).Build()).AnyAsync();
         }
 
-        public virtual async Task<List<TOut>> GetAllWithSelectAsync<TEntity, TOut>(IQuery<TEntity> filter = null)
-            where TEntity : class, IEntity
+        public virtual Task<List<TOut>> GetAllWithSelectAsync<TEntity, TOut>(IQueryWithSelect<TEntity, TOut> filter = null) where TEntity : class, IEntity
         {
-            return await GetQueryableSelect(filter).Select(x => (TOut)x).ToListAsync();
+            return GetQueryableSelect(filter).ToListAsync();
+        }
+
+        public Task<TOut> GetFirstWithSelectAsync<TEntity, TOut>(IQueryWithSelect<TEntity, TOut> filter = null) where TEntity : class, IEntity
+        {
+            return GetQueryableSelect(filter).FirstOrDefaultAsync();
         }
     }
 }
