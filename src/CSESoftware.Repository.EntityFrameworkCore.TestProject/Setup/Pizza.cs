@@ -1,4 +1,5 @@
 ﻿using CSESoftware.Core.Entity;
+using System.Collections.Generic;
 
 namespace CSESoftware.Repository.EntityFrameworkCore.TestProject.Setup
 {
@@ -13,5 +14,7 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject.Setup
 
         public int ToppingId { get; set; }
         public Topping Topping { get; set; }
+
+        public ICollection<PersonPizza> PersonPizzas { get; set; }
     }
 }

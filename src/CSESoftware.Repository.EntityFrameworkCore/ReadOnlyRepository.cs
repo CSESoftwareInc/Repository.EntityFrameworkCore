@@ -32,7 +32,7 @@ namespace CSESoftware.Repository.EntityFrameworkCore
             if (filter.Predicate != null)
                 query = query.Where(filter.Predicate);
 
-            query = filter.Include.Aggregate(query, (current, property) => current.Include(property));
+            query = query.ApplyIncludes(filter.Include);
 
             if (filter.OrderBy != null)
                 query = filter.OrderBy(query);
