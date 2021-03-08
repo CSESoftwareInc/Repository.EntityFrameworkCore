@@ -93,6 +93,36 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             }
         };
 
+        public static List<Person> People = new List<Person>
+        {
+            new Person
+            {
+                Id = 1,
+                Name = "Cameron",
+                PersonPizzas = new List<PersonPizza>
+                {
+                    new PersonPizza
+                    {
+                        PersonId = 1,
+                        PizzaId = 1
+                    }
+                }
+            },
+            new Person
+            {
+                Id = 2,
+                Name = "James",
+                PersonPizzas =  new List<PersonPizza>
+                {
+                    new PersonPizza
+                    {
+                        PersonId = 2,
+                        PizzaId = 3
+                    }
+                }
+            }
+        };
+
         #endregion
 
         #region Repository Setup
@@ -114,6 +144,7 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             repo.Create(Crusts);
             repo.Create(Toppings);
             repo.Create(Pizzas);
+            repo.Create(People);
             await repo.SaveAsync();
         }
 
@@ -292,6 +323,21 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             Assert.IsTrue(result1);
             Assert.IsTrue(result2);
             Assert.IsFalse(result3);
+        }
+
+        [TestMethod]
+        public async Task ComplexIncludeTest()
+        {
+            var options = GetOptions();
+            var repository = GetReadOnlyRepository(options);
+            await AddDefaultMenuItems(options);
+
+            var people = await repository.GetAllAsync(new QueryBuilder<Person>()
+                .Include(x => x.PersonPizzas.Select(p => p.Pizza.Topping))
+                .Build());
+
+            Assert.IsNotNull(people?.FirstOrDefault()?.PersonPizzas?.FirstOrDefault()?.Pizza?.Topping);
+            Assert.IsNull(people?.FirstOrDefault()?.PersonPizzas?.FirstOrDefault()?.Pizza?.Crust);
         }
     }
 }
