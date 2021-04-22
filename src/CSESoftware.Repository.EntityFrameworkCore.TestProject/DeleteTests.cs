@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using CSESoftware.Repository.EntityFrameworkCore.TestProject.Setup;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
 {
@@ -14,18 +14,14 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var options = GetOptions();
             var repository = GetRepository(options);
 
-            repository.Create(new Topping
+            await repository.CreateAsync(new Topping
             {
                 Name = "Canadian Bacon",
                 AdditionalCost = 2.5
             });
-            await repository.SaveAsync();
-
 
             var deleteRepository = GetRepository(options);
-            deleteRepository.Delete(await deleteRepository.GetFirstAsync<Topping>());
-            await deleteRepository.SaveAsync();
-
+            await deleteRepository.DeleteAsync(await deleteRepository.GetFirstAsync<Topping>());
 
             var readRepository = GetRepository(options);
             Assert.AreEqual(false, await readRepository.GetExistsAsync<Topping>(x => x.Id == 1));
@@ -33,23 +29,19 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
         }
 
         [TestMethod]
-        public async Task DeleteByIdTest()
+        public async Task DeleteByIdTest() //todo update
         {
             var options = GetOptions();
             var createRepository = GetRepository(options);
 
-            createRepository.Create(new Topping
+            await createRepository.CreateAsync(new Topping
             {
                 Name = "Canadian Bacon",
                 AdditionalCost = 2.5
             });
-            await createRepository.SaveAsync();
-
 
             var deleteRepository = GetRepository(options);
-            deleteRepository.Delete<Topping, int>(1);
-            await deleteRepository.SaveAsync();
-
+            await deleteRepository.DeleteAsync<Topping>(x => x.Id == 1);
 
             var readRepository = GetRepository(options);
             Assert.AreEqual(false, await readRepository.GetExistsAsync<Topping>(x => x.Id == 1));
@@ -78,15 +70,11 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             };
 
             var createRepository = GetRepository(options);
-            createRepository.Create(new List<Topping>{topping1, topping2, topping3});
-            await createRepository.SaveAsync();
-
+            await createRepository.CreateAsync(new List<Topping>{topping1, topping2, topping3});
 
             var deleteRepository = GetRepository(options);
             var toppingsToDelete = await deleteRepository.GetAllAsync<Topping>(x => x.AdditionalCost > 2);
-            deleteRepository.Delete(toppingsToDelete);
-            await deleteRepository.SaveAsync();
-
+            await deleteRepository.DeleteAsync(toppingsToDelete);
 
             var readRepository = GetRepository(options);
             Assert.AreEqual(topping2.Id, (await readRepository.GetFirstAsync<Topping>()).Id);
@@ -115,14 +103,10 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             };
 
             var createRepository = GetRepository(options);
-            createRepository.Create(new List<Topping>{topping1, topping2, topping3});
-            await createRepository.SaveAsync();
-
+            await createRepository.CreateAsync(new List<Topping>{topping1, topping2, topping3});
 
             var deleteRepository = GetRepository(options);
-            deleteRepository.Delete<Topping>(x => x.AdditionalCost > 2);
-            await deleteRepository.SaveAsync();
-
+            await deleteRepository.DeleteAsync<Topping>(x => x.AdditionalCost > 2);
 
             var readRepository = GetRepository(options);
             Assert.AreEqual(topping2.Id, (await readRepository.GetFirstAsync<Topping>()).Id);

@@ -1,91 +1,93 @@
-﻿using System;
+﻿using CSESoftware.Core.Entity;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using CSESoftware.Core.Entity;
-using Microsoft.EntityFrameworkCore;
 
 namespace CSESoftware.Repository.EntityFrameworkCore
 {
-    public class Repository<TContext> : ReadOnlyRepository<TContext>, IRepository where TContext : DbContext
+    public class Repository<TContext> : ReadOnlyRepository<TContext>, IRepository
+        where TContext : DbContext
     {
         public Repository(TContext context) : base(context)
         {
         }
 
-        public virtual void Create<TEntity>(TEntity entity)
-            where TEntity : class, IEntity
+        public virtual async Task CreateAsync<T>(T entity)
+            where T : class
         {
-            entity.CreateSetup();
-            Context.Set<TEntity>().Add(entity);
+            await Context.Set<T>().AddAsync(entity);
+            await SaveAsync();
         }
 
-        public virtual void Create<TEntity>(List<TEntity> entities)
-            where TEntity : class, IEntity
+        public virtual async Task CreateAsync<T>(List<T> entities)
+            where T : class
         {
-            foreach (var entity in entities)
-                entity.CreateSetup();
-
-            Context.Set<TEntity>().AddRange(entities);
+            await Context.Set<T>().AddRangeAsync(entities);
+            await SaveAsync();
         }
 
-        public virtual void Update<TEntity>(TEntity entity)
-            where TEntity : class, IEntity
+        public virtual async Task UpdateAsync<T>(T entity)
+            where T : class
         {
-            entity.UpdateSetup();
             if (Context.Entry(entity).State == EntityState.Detached)
-                Context.Set<TEntity>().Attach(entity);
+                Context.Set<T>().Attach(entity);
 
             Context.Entry(entity).State = EntityState.Modified;
+            await SaveAsync();
         }
 
-        public virtual void Update<TEntity>(List<TEntity> entities)
-            where TEntity : class, IEntity
+        public virtual async Task UpdateAsync<T>(List<T> entities)
+            where T : class
         {
-            Context.Set<TEntity>().AttachRange(
+            Context.Set<T>().AttachRange(
                 entities.Where(x => Context.Entry(x).State == EntityState.Detached));
 
             foreach (var entity in entities)
             {
-                entity.UpdateSetup();
                 Context.Entry(entity).State = EntityState.Modified;
             }
+            await SaveAsync();
         }
 
-        public virtual void Delete<TEntity, T>(T id)
-            where TEntity : class, IEntityWithId<T>
+        public virtual async Task DeleteAsync<T, TId>(TId id)
+            where T : class, IEntityWithId<TId>
         {
-            var entity = Context.Set<TEntity>().Find(id);
-            Delete(entity);
+            var entity = await Context.Set<T>().FindAsync(id);
+            await DeleteAsync(entity);
         }
 
-        public virtual void Delete<TEntity>(TEntity entity)
-            where TEntity : class, IEntity
+        public virtual async Task DeleteAsync<T>(T entity)
+            where T : class
         {
-            var dbSet = Context.Set<TEntity>();
+            var dbSet = Context.Set<T>();
             if (Context.Entry(entity).State == EntityState.Detached)
                 dbSet.Attach(entity);
 
             dbSet.Remove(entity);
+            await SaveAsync();
         }
 
-        public virtual void Delete<TEntity>(List<TEntity> entities)
-            where TEntity : class, IEntity
+        public virtual async Task DeleteAsync<T>(List<T> entities)
+            where T : class
         {
-            Context.Set<TEntity>().AttachRange(
+            Context.Set<T>().AttachRange(
                 entities.Where(x => Context.Entry(x).State == EntityState.Detached));
 
-            Context.Set<TEntity>().RemoveRange(entities);
+            Context.Set<T>().RemoveRange(entities);
+            await SaveAsync();
         }
 
-        public virtual void Delete<TEntity>(Expression<Func<TEntity, bool>> filter)
-            where TEntity : class, IEntity
+        public virtual async Task DeleteAsync<T>(Expression<Func<T, bool>> filter)
+            where T : class
         {
-            Context.Set<TEntity>().RemoveRange(Context.Set<TEntity>().Where(filter));
+            Context.Set<T>().RemoveRange(Context.Set<T>().Where(filter));
+            await SaveAsync();
         }
 
-        public virtual async Task SaveAsync()
+        private async Task SaveAsync()
         {
             await Context.SaveChangesAsync();
             DetachAllEntities();

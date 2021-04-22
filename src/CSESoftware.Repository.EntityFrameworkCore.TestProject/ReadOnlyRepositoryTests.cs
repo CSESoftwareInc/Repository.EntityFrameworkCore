@@ -1,5 +1,6 @@
-using CSESoftware.Repository.Builder;
 using CSESoftware.Repository.EntityFrameworkCore.TestProject.Setup;
+using CSESoftware.Repository.Query;
+using CSESoftware.Repository.Query.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -141,11 +142,10 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
         {
             var repo = new Repository<DbContext>(new DbContext(options));
 
-            repo.Create(Crusts);
-            repo.Create(Toppings);
-            repo.Create(Pizzas);
-            repo.Create(People);
-            await repo.SaveAsync();
+            await repo.CreateAsync(Crusts);
+            await repo.CreateAsync(Toppings);
+            await repo.CreateAsync(Pizzas);
+            await repo.CreateAsync(People);
         }
 
         #endregion
@@ -157,52 +157,44 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var repository = GetReadOnlyRepository(options);
             await AddDefaultMenuItems(options);
 
-
             var allToppings = await repository.GetAllAsync<Topping>();
             Assert.AreEqual(4, allToppings.Count);
-
 
             var extraCostToppings = await repository.GetAllAsync<Topping>(x => x.AdditionalCost > 0);
             Assert.AreEqual(1, extraCostToppings.Count);
 
-
             // Where
-            var freeToppings = new QueryBuilder<Topping>().Where(x => x.AdditionalCost.Equals(0)).Build();
+            var freeToppings = new Query<Topping>().Where(x => x.AdditionalCost.Equals(0));
             var inactiveToppings = await repository.GetAllAsync(freeToppings);
             Assert.AreEqual(3, inactiveToppings.Count);
 
-
             // OrderBy
-            var pizzasOrderedByCostQuery = new QueryBuilder<Pizza>().OrderBy( x => x.OrderBy(y => y.Cost)).Build();
+            var pizzasOrderedByCostQuery = new Query<Pizza>().OrderBy(x => x.Cost);
             var pizzasOrderedByCost = (await repository.GetAllAsync(pizzasOrderedByCostQuery)).ToList();
             Assert.AreEqual(8, pizzasOrderedByCost[0].Cost);
             Assert.AreEqual(10, pizzasOrderedByCost[1].Cost);
             Assert.AreEqual(12, pizzasOrderedByCost[2].Cost);
 
-
             // Include
             var repository2 = GetReadOnlyRepository(options);
-            var includeQuery = new QueryBuilder<Pizza>().Include(x => x.Topping).Build();
+            var includeQuery = new Query<Pizza>().Include(x => x.Topping);
             var pizzasWithTopping = (await repository2.GetAllAsync(includeQuery)).ToList();
 
             Assert.IsNotNull(pizzasWithTopping.FirstOrDefault()?.Topping);
             Assert.IsNull(pizzasWithTopping.FirstOrDefault()?.Crust);
 
-
             // Skip
-            var skipToppingsQuery = new QueryBuilder<Topping>().Skip(2).Build();
+            var skipToppingsQuery = new Query<Topping>().OrderBy(x => x.Id).Skip(2);
             var toppingsSkip2 = (await repository.GetAllAsync(skipToppingsQuery)).ToList();
             Assert.AreEqual(3, toppingsSkip2.FirstOrDefault()?.Id);
             Assert.AreEqual(2, toppingsSkip2.Count);
 
-
             // Take
-            var takeToppingsQuery = new QueryBuilder<Topping>().Take(2).Build();
+            var takeToppingsQuery = new Query<Topping>().OrderBy(x => x.Id).Take(2);
             var toppingsTake2 = (await repository.GetAllAsync(takeToppingsQuery)).ToList();
             Assert.AreEqual(1, toppingsTake2.FirstOrDefault()?.Id);
             Assert.AreEqual(2, toppingsTake2.Count);
         }
-
 
         [TestMethod]
         public async Task GetAllWithSelectAsyncTest()
@@ -211,13 +203,11 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var repository = GetReadOnlyRepository(options);
             await AddDefaultMenuItems(options);
 
-
             var toppings = await repository.GetAllWithSelectAsync(
-                new QueryBuilder<Topping>()
-                    .Select(x => x.Name)
-                    .Build());
+                new Query<Topping>()
+                    .Select(x => x.Name));
 
-            var firstTopping = toppings.FirstOrDefault();
+            var firstTopping = toppings.OrderBy(x => x).FirstOrDefault();
             Assert.AreEqual("Bacon", firstTopping);
         }
 
@@ -228,16 +218,13 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var repository = GetReadOnlyRepository(options);
             await AddDefaultMenuItems(options);
 
-
             var toppings = await repository.GetAllWithSelectAsync(
-                new QueryBuilder<Topping>()
-                    .Select(x => x.Id)
-                    .Build());
+                new Query<Topping>()
+                    .Select(x => x.Id));
 
-            var firstToppingId = toppings.FirstOrDefault();
+            var firstToppingId = toppings.OrderBy(x => x).FirstOrDefault();
             Assert.AreEqual(1, firstToppingId);
         }
-
 
         [TestMethod]
         public async Task GetFirstAsyncQueryTest()
@@ -246,7 +233,7 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var repository = GetReadOnlyRepository(options);
             await AddDefaultMenuItems(options);
 
-            var result = await repository.GetFirstAsync(new QueryBuilder<Pizza>().Where(x => x.CrustId == 3).Build());
+            var result = await repository.GetFirstAsync(new Query<Pizza>().Where(x => x.CrustId == 3));
 
             Assert.AreEqual("Hawaiian", result.Name);
         }
@@ -270,8 +257,8 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var repository = GetReadOnlyRepository(options);
             await AddDefaultMenuItems(options);
 
-            var result1 = await repository.GetCountAsync(new QueryBuilder<Topping>().Where(x => x.Id == 1).Build());
-            var result2 = await repository.GetCountAsync(new QueryBuilder<Topping>().Where(x => x.AdditionalCost > 0).Build());
+            var result1 = await repository.GetCountAsync(new Query<Topping>().Where(x => x.Id == 1));
+            var result2 = await repository.GetCountAsync(new Query<Topping>().Where(x => x.AdditionalCost > 0));
 
             Assert.AreEqual(1, result1);
             Assert.AreEqual(1, result2);
@@ -300,9 +287,9 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var repository = GetReadOnlyRepository(options);
             await AddDefaultMenuItems(options);
 
-            var result1 = await repository.GetExistsAsync(new QueryBuilder<Topping>().Where(x => x.Name.Equals("Bacon")).Build());
-            var result2 = await repository.GetExistsAsync(new QueryBuilder<Topping>().Where(x => x.Id > 2).Build());
-            var result3 = await repository.GetExistsAsync(new QueryBuilder<Topping>().Where(x => x.AdditionalCost < -1).Build());
+            var result1 = await repository.GetExistsAsync(new Query<Topping>().Where(x => x.Name.Equals("Bacon")));
+            var result2 = await repository.GetExistsAsync(new Query<Topping>().Where(x => x.Id > 2));
+            var result3 = await repository.GetExistsAsync(new Query<Topping>().Where(x => x.AdditionalCost < -1));
 
             Assert.IsTrue(result1);
             Assert.IsTrue(result2);
@@ -332,9 +319,8 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var repository = GetReadOnlyRepository(options);
             await AddDefaultMenuItems(options);
 
-            var people = await repository.GetAllAsync(new QueryBuilder<Person>()
-                .Include(x => x.PersonPizzas.Select(p => p.Pizza.Topping))
-                .Build());
+            var people = await repository.GetAllAsync(new Query<Person>()
+                .Include(x => x.PersonPizzas.Select(p => p.Pizza.Topping)));
 
             Assert.IsNotNull(people?.FirstOrDefault()?.PersonPizzas?.FirstOrDefault()?.Pizza?.Topping);
             Assert.IsNull(people?.FirstOrDefault()?.PersonPizzas?.FirstOrDefault()?.Pizza?.Crust);

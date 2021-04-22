@@ -1,5 +1,4 @@
-﻿using CSESoftware.Core.Entity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,14 +9,14 @@ namespace CSESoftware.Repository.EntityFrameworkCore
 {
     internal static class Extensions
     {
-        internal static IQueryable<TEntity> ApplyIncludes<TEntity>(this IQueryable<TEntity> query,
-            List<Expression<Func<TEntity, object>>> includes)
-            where TEntity : class, IEntity
+        internal static IQueryable<T> ApplyIncludes<T>(this IQueryable<T> query,
+            List<Expression<Func<T, object>>> includes)
+            where T : class
         {
             return includes.Aggregate(query, (current, property) => current.Include(property.ToPropertyString()));
         }
 
-        internal static string ToPropertyString<TEntity>(this Expression<Func<TEntity, object>> property)
+        internal static string ToPropertyString<T>(this Expression<Func<T, object>> property)
         {
             var modifiedProperty = property.ToString();
 

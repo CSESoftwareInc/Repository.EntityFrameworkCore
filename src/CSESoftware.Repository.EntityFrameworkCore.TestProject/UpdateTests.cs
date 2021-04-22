@@ -1,9 +1,9 @@
+using CSESoftware.Repository.EntityFrameworkCore.TestProject.Setup;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CSESoftware.Repository.EntityFrameworkCore.TestProject.Setup;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
 {
@@ -21,23 +21,18 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
                 Name = "Canadian Bacon",
                 AdditionalCost = 2.5
             };
-            createRepository.Create(initialTopping);
-            await createRepository.SaveAsync();
-
+            await createRepository.CreateAsync(initialTopping);
 
             var updateRepository = GetRepository(options);
             var topping = await updateRepository.GetFirstAsync<Topping>();
             topping.Name = "Super Canadian Bacon";
-            updateRepository.Update(topping);
-            await updateRepository.SaveAsync();
-
+            await updateRepository.UpdateAsync(topping);
 
             var readRepository = GetRepository(options);
             var updatedTopping = await readRepository.GetFirstAsync<Topping>();
 
             Assert.AreEqual("Super Canadian Bacon", updatedTopping.Name);
             Assert.AreEqual(2.5, updatedTopping.AdditionalCost);
-            Assert.AreNotEqual(initialTopping.ModifiedDate, updatedTopping.ModifiedDate);
         }
 
         [TestMethod]
@@ -51,16 +46,12 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
                 Name = "Thin",
                 AdditionalCost = 2.5
             };
-            createRepository.Create(initialCrust);
-            await createRepository.SaveAsync();
-
+            await createRepository.CreateAsync(initialCrust);
 
             var updateRepository = GetRepository(options);
             var crust = await updateRepository.GetFirstAsync<Crust>();
             crust.Name = "Super Thin";
-            updateRepository.Update(crust);
-            await updateRepository.SaveAsync();
-
+            await updateRepository.UpdateAsync(crust);
 
             var readRepository = GetRepository(options);
             var updatedCrust = await readRepository.GetFirstAsync<Crust>();
@@ -98,16 +89,12 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var toppings = new List<Topping> { topping1, topping2, topping3, topping4 };
 
             var createRepository = GetRepository(options);
-            createRepository.Create(toppings);
-            await createRepository.SaveAsync();
-
+            await createRepository.CreateAsync(toppings);
 
             var updateRepository = GetRepository(options);
             var updateToppings = await updateRepository.GetAllAsync<Topping>();
             updateToppings.ForEach(x => x.Name = "Tuna");
-            updateRepository.Update(updateToppings);
-            await updateRepository.SaveAsync();
-
+            await updateRepository.UpdateAsync(updateToppings);
 
             var readRepository = GetRepository(options);
             var result = (await readRepository.GetAllAsync<Topping>()).ToList();
@@ -115,7 +102,6 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             Assert.AreEqual(4, result.Count);
             Assert.AreEqual(2, result.Count(x => Math.Abs(x.AdditionalCost - 0.75) < 0.001));
             Assert.IsTrue(result.All(x => x.Name.Equals("Tuna")));
-            Assert.IsFalse(result.First(x => Math.Abs(x.AdditionalCost - 0.5) < 0.001).ModifiedDate.Equals(topping1.ModifiedDate));
         }
 
         [TestMethod]
@@ -132,7 +118,6 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             {
                 Name = "Crispy",
                 AdditionalCost = 0.75
-
             };
             var crust3 = new Crust
             {
@@ -148,16 +133,12 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var crusts = new List<Crust> { crust1, crust2, crust3, crust4 };
 
             var createRepository = GetRepository(options);
-            createRepository.Create(crusts);
-            await createRepository.SaveAsync();
-
+            await createRepository.CreateAsync(crusts);
 
             var updateRepository = GetRepository(options);
             var updateCrust = await updateRepository.GetAllAsync<Crust>();
             updateCrust.ForEach(x => x.AdditionalCost = 0);
-            updateRepository.Update(updateCrust);
-            await updateRepository.SaveAsync();
-
+            await updateRepository.UpdateAsync(updateCrust);
 
             var readRepository = GetRepository(options);
             var result = (await readRepository.GetAllAsync<Crust>()).ToList();

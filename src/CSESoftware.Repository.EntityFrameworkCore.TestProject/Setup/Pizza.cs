@@ -1,13 +1,13 @@
-﻿using CSESoftware.Core.Entity;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace CSESoftware.Repository.EntityFrameworkCore.TestProject.Setup
 {
-    public class Pizza : BaseEntity<int>
+    public class Pizza
     {
+        public int Id { get; set; }
+
         public string Name { get; set; }
         public double Cost { get; set; }
-
 
         public int CrustId { get; set; }
         public Crust Crust { get; set; }
