@@ -15,31 +15,28 @@ namespace CSESoftware.Repository.EntityFrameworkCore
         {
         }
 
-        public virtual async Task CreateAsync<T>(T entity)
+        public virtual void Create<T>(T entity)
             where T : class
         {
-            await Context.Set<T>().AddAsync(entity);
-            await SaveAsync();
+            Context.Set<T>().Add(entity);
         }
 
-        public virtual async Task CreateAsync<T>(List<T> entities)
+        public virtual void Create<T>(List<T> entities)
             where T : class
         {
-            await Context.Set<T>().AddRangeAsync(entities);
-            await SaveAsync();
+            Context.Set<T>().AddRange(entities);
         }
 
-        public virtual async Task UpdateAsync<T>(T entity)
+        public virtual void Update<T>(T entity)
             where T : class
         {
             if (Context.Entry(entity).State == EntityState.Detached)
                 Context.Set<T>().Attach(entity);
 
             Context.Entry(entity).State = EntityState.Modified;
-            await SaveAsync();
         }
 
-        public virtual async Task UpdateAsync<T>(List<T> entities)
+        public virtual void Update<T>(List<T> entities)
             where T : class
         {
             Context.Set<T>().AttachRange(
@@ -49,17 +46,16 @@ namespace CSESoftware.Repository.EntityFrameworkCore
             {
                 Context.Entry(entity).State = EntityState.Modified;
             }
-            await SaveAsync();
         }
 
-        public virtual async Task DeleteAsync<T, TId>(TId id)
+        public virtual void Delete<T, TId>(TId id)
             where T : class, IEntityWithId<TId>
         {
-            var entity = await Context.Set<T>().FindAsync(id);
-            await DeleteAsync(entity);
+            var entity = Context.Set<T>().Find(id);
+            Delete(entity);
         }
 
-        public virtual async Task DeleteAsync<T>(T entity)
+        public virtual void Delete<T>(T entity)
             where T : class
         {
             var dbSet = Context.Set<T>();
@@ -67,27 +63,24 @@ namespace CSESoftware.Repository.EntityFrameworkCore
                 dbSet.Attach(entity);
 
             dbSet.Remove(entity);
-            await SaveAsync();
         }
 
-        public virtual async Task DeleteAsync<T>(List<T> entities)
+        public virtual void Delete<T>(List<T> entities)
             where T : class
         {
             Context.Set<T>().AttachRange(
                 entities.Where(x => Context.Entry(x).State == EntityState.Detached));
 
             Context.Set<T>().RemoveRange(entities);
-            await SaveAsync();
         }
 
-        public virtual async Task DeleteAsync<T>(Expression<Func<T, bool>> filter)
+        public virtual void Delete<T>(Expression<Func<T, bool>> filter)
             where T : class
         {
             Context.Set<T>().RemoveRange(Context.Set<T>().Where(filter));
-            await SaveAsync();
         }
 
-        private async Task SaveAsync()
+        public async Task SaveAsync()
         {
             await Context.SaveChangesAsync();
             DetachAllEntities();

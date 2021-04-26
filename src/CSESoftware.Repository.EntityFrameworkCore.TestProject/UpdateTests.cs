@@ -21,12 +21,14 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
                 Name = "Canadian Bacon",
                 AdditionalCost = 2.5
             };
-            await createRepository.CreateAsync(initialTopping);
+            createRepository.Create(initialTopping);
+            await createRepository.SaveAsync();
 
             var updateRepository = GetRepository(options);
             var topping = await updateRepository.GetFirstAsync<Topping>();
             topping.Name = "Super Canadian Bacon";
-            await updateRepository.UpdateAsync(topping);
+            updateRepository.Update(topping);
+            await updateRepository.SaveAsync();
 
             var readRepository = GetRepository(options);
             var updatedTopping = await readRepository.GetFirstAsync<Topping>();
@@ -46,12 +48,14 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
                 Name = "Thin",
                 AdditionalCost = 2.5
             };
-            await createRepository.CreateAsync(initialCrust);
+            createRepository.Create(initialCrust);
+            await createRepository.SaveAsync();
 
             var updateRepository = GetRepository(options);
             var crust = await updateRepository.GetFirstAsync<Crust>();
             crust.Name = "Super Thin";
-            await updateRepository.UpdateAsync(crust);
+            updateRepository.Update(crust);
+            await updateRepository.SaveAsync();
 
             var readRepository = GetRepository(options);
             var updatedCrust = await readRepository.GetFirstAsync<Crust>();
@@ -89,12 +93,14 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var toppings = new List<Topping> { topping1, topping2, topping3, topping4 };
 
             var createRepository = GetRepository(options);
-            await createRepository.CreateAsync(toppings);
+            createRepository.Create(toppings);
+            await createRepository.SaveAsync();
 
             var updateRepository = GetRepository(options);
             var updateToppings = await updateRepository.GetAllAsync<Topping>();
             updateToppings.ForEach(x => x.Name = "Tuna");
-            await updateRepository.UpdateAsync(updateToppings);
+            updateRepository.Update(updateToppings);
+            await updateRepository.SaveAsync();
 
             var readRepository = GetRepository(options);
             var result = (await readRepository.GetAllAsync<Topping>()).ToList();
@@ -133,12 +139,14 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var crusts = new List<Crust> { crust1, crust2, crust3, crust4 };
 
             var createRepository = GetRepository(options);
-            await createRepository.CreateAsync(crusts);
+            createRepository.Create(crusts);
+            await createRepository.SaveAsync();
 
             var updateRepository = GetRepository(options);
             var updateCrust = await updateRepository.GetAllAsync<Crust>();
             updateCrust.ForEach(x => x.AdditionalCost = 0);
-            await updateRepository.UpdateAsync(updateCrust);
+            updateRepository.Update(updateCrust);
+            await updateRepository.SaveAsync();
 
             var readRepository = GetRepository(options);
             var result = (await readRepository.GetAllAsync<Crust>()).ToList();

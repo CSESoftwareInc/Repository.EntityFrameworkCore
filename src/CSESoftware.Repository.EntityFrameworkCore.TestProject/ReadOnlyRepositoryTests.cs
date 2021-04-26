@@ -140,12 +140,13 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
 
         private static async Task AddDefaultMenuItems(DbContextOptions options)
         {
-            var repo = new Repository<DbContext>(new DbContext(options));
+            var repository = new Repository<DbContext>(new DbContext(options));
 
-            await repo.CreateAsync(Crusts);
-            await repo.CreateAsync(Toppings);
-            await repo.CreateAsync(Pizzas);
-            await repo.CreateAsync(People);
+            repository.Create(Crusts);
+            repository.Create(Toppings);
+            repository.Create(Pizzas);
+            repository.Create(People);
+            await repository.SaveAsync();
         }
 
         #endregion

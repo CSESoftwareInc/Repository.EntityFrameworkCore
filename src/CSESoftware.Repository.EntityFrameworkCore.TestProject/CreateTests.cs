@@ -16,12 +16,13 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var options = GetOptions();
             var createRepository = GetRepository(options);
 
-            await createRepository.CreateAsync(new Topping
+            createRepository.Create(new Topping
             {
                 Name = "Canadian Bacon",
                 AdditionalCost = 2.5,
                 IsActive = true
             });
+            await createRepository.SaveAsync();
 
             var readRepository = GetRepository(options);
             var result = (await readRepository.GetAllAsync<Topping>()).ToList();
@@ -38,11 +39,12 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var options = GetOptions();
             var createRepository = GetRepository(options);
 
-            await createRepository.CreateAsync(new Crust
+            createRepository.Create(new Crust
             {
                 Name = "Pan",
                 AdditionalCost = 2.5,
             });
+            await createRepository.SaveAsync();
 
             var readRepository = GetRepository(options);
             var result = (await readRepository.GetAllAsync<Crust>()).ToList();
@@ -83,7 +85,8 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var toppings = new List<Topping> {topping1, topping2, topping3, topping4};
 
             var createRepository = GetRepository(options);
-            await createRepository.CreateAsync(toppings);
+            createRepository.Create(toppings);
+            await createRepository.SaveAsync();
 
             var readRepository = GetRepository(options);
             var result = (await readRepository.GetAllAsync<Topping>()).ToList();
@@ -121,7 +124,8 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var crusts = new List<Crust> {crust1, crust2, crust3, crust4};
 
             var createRepository = GetRepository(options);
-            await createRepository.CreateAsync(crusts);
+            createRepository.Create(crusts);
+            await createRepository.SaveAsync();
 
             var readRepository = GetRepository(options);
             var result = (await readRepository.GetAllAsync<Crust>()).ToList();
