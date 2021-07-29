@@ -1,5 +1,4 @@
-﻿using CSESoftware.Core.Entity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,13 +45,6 @@ namespace CSESoftware.Repository.EntityFrameworkCore
             {
                 Context.Entry(entity).State = EntityState.Modified;
             }
-        }
-
-        public virtual void Delete<T, TId>(TId id)
-            where T : class, IEntityWithId<TId>
-        {
-            var entity = Context.Set<T>().Find(id);
-            Delete(entity);
         }
 
         public virtual void Delete<T>(T entity)
