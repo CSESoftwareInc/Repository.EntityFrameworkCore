@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using CSESoftware.Core.Entity;
 using Microsoft.EntityFrameworkCore;
@@ -85,9 +86,9 @@ namespace CSESoftware.Repository.EntityFrameworkCore
             Context.Set<TEntity>().RemoveRange(Context.Set<TEntity>().Where(filter));
         }
 
-        public virtual async Task SaveAsync()
+        public virtual async Task SaveAsync(CancellationToken? cancellationToken = null)
         {
-            await Context.SaveChangesAsync();
+            await Context.SaveChangesAsync(cancellationToken ?? CancellationToken.None);
             DetachAllEntities();
         }
 

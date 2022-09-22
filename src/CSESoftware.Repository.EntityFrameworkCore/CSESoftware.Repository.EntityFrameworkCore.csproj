@@ -5,8 +5,8 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>CSESoftware.Repository.EntityFrameworkCore</PackageId>
     <Authors>CSE Software, Inc.</Authors>
-    <Copyright>2021 CSE Software, Inc.</Copyright>
-    <Version>2.1.1</Version>
+    <Copyright>2022 CSE Software, Inc.</Copyright>
+    <Version>2.2.0-beta1</Version>
     <PackageIcon>packageIcon.png</PackageIcon>
     <PackageIconUrl />
     <Description>The Entity Framework Core implementation of CSESoftware.Repository.</Description>
@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <PackageReference Include="CSESoftware.Core" Version="2.0.0" />
-    <PackageReference Include="CSESoftware.Repository" Version="2.1.1" />
+    <PackageReference Include="CSESoftware.Repository" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.5" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.5" />
   </ItemGroup>
