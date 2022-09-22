@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CSESoftware.Repository.EntityFrameworkCore
@@ -59,7 +60,7 @@ namespace CSESoftware.Repository.EntityFrameworkCore
         public virtual Task<List<TEntity>> GetAllAsync<TEntity>(IQuery<TEntity> filter)
             where TEntity : class, IEntity
         {
-            return GetQueryable(filter).ToListAsync();
+            return GetQueryable(filter).ToListAsync(filter?.CancellationToken ?? CancellationToken.None);
         }
 
         public virtual Task<List<TEntity>> GetAllAsync<TEntity>(Expression<Func<TEntity, bool>> filter = null)
@@ -71,7 +72,7 @@ namespace CSESoftware.Repository.EntityFrameworkCore
         public virtual Task<TEntity> GetFirstAsync<TEntity>(IQuery<TEntity> filter)
             where TEntity : class, IEntity
         {
-            return GetQueryable(filter).FirstOrDefaultAsync();
+            return GetQueryable(filter).FirstOrDefaultAsync(filter?.CancellationToken ?? CancellationToken.None);
         }
 
         public virtual Task<TEntity> GetFirstAsync<TEntity>(Expression<Func<TEntity, bool>> filter = null)
@@ -85,7 +86,7 @@ namespace CSESoftware.Repository.EntityFrameworkCore
         public virtual Task<int> GetCountAsync<TEntity>(IQuery<TEntity> filter)
             where TEntity : class, IEntity
         {
-            return GetQueryable(filter).CountAsync();
+            return GetQueryable(filter).CountAsync(filter?.CancellationToken ?? CancellationToken.None);
         }
 
         public virtual Task<int> GetCountAsync<TEntity>(Expression<Func<TEntity, bool>> filter = null)
@@ -97,7 +98,7 @@ namespace CSESoftware.Repository.EntityFrameworkCore
         public virtual Task<bool> GetExistsAsync<TEntity>(IQuery<TEntity> filter)
             where TEntity : class, IEntity
         {
-            return GetQueryable(filter).AnyAsync();
+            return GetQueryable(filter).AnyAsync(filter?.CancellationToken ?? CancellationToken.None);
         }
 
         public virtual Task<bool> GetExistsAsync<TEntity>(Expression<Func<TEntity, bool>> filter = null)
@@ -108,12 +109,12 @@ namespace CSESoftware.Repository.EntityFrameworkCore
 
         public virtual Task<List<TOut>> GetAllWithSelectAsync<TEntity, TOut>(IQueryWithSelect<TEntity, TOut> filter = null) where TEntity : class, IEntity
         {
-            return GetQueryableSelect(filter).ToListAsync();
+            return GetQueryableSelect(filter).ToListAsync(filter?.CancellationToken ?? CancellationToken.None);
         }
 
         public Task<TOut> GetFirstWithSelectAsync<TEntity, TOut>(IQueryWithSelect<TEntity, TOut> filter = null) where TEntity : class, IEntity
         {
-            return GetQueryableSelect(filter).FirstOrDefaultAsync();
+            return GetQueryableSelect(filter).FirstOrDefaultAsync(filter?.CancellationToken ?? CancellationToken.None);
         }
     }
 }
