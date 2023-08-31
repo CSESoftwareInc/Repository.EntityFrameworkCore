@@ -63,10 +63,22 @@ namespace CSESoftware.Repository.EntityFrameworkCore
             return GetQueryable(filter).ToListAsync(filter?.CancellationToken ?? CancellationToken.None);
         }
 
+        public virtual List<TEntity> GetAll<TEntity>(IQuery<TEntity> filter)
+            where TEntity : class, IEntity
+        {
+            return GetQueryable(filter).ToList();
+        }
+
         public virtual Task<List<TEntity>> GetAllAsync<TEntity>(Expression<Func<TEntity, bool>> filter = null)
             where TEntity : class, IEntity
         {
             return GetAllAsync(new QueryBuilder<TEntity>().Where(filter).Build());
+        }
+
+        public virtual List<TEntity> GetAll<TEntity>(Expression<Func<TEntity, bool>> filter = null)
+            where TEntity : class, IEntity
+        {
+            return GetAll(new QueryBuilder<TEntity>().Where(filter).Build());
         }
 
         public virtual Task<TEntity> GetFirstAsync<TEntity>(IQuery<TEntity> filter)
@@ -75,10 +87,24 @@ namespace CSESoftware.Repository.EntityFrameworkCore
             return GetQueryable(filter).FirstOrDefaultAsync(filter?.CancellationToken ?? CancellationToken.None);
         }
 
+        public virtual TEntity GetFirst<TEntity>(IQuery<TEntity> filter)
+            where TEntity : class, IEntity
+        {
+            return GetQueryable(filter).FirstOrDefault();
+        }
+
         public virtual Task<TEntity> GetFirstAsync<TEntity>(Expression<Func<TEntity, bool>> filter = null)
             where TEntity : class, IEntity
         {
             return GetFirstAsync(new QueryBuilder<TEntity>()
+                .Where(filter)
+                .Build());
+        }
+
+        public virtual TEntity GetFirst<TEntity>(Expression<Func<TEntity, bool>> filter = null)
+            where TEntity : class, IEntity
+        {
+            return GetFirst(new QueryBuilder<TEntity>()
                 .Where(filter)
                 .Build());
         }
@@ -112,9 +138,19 @@ namespace CSESoftware.Repository.EntityFrameworkCore
             return GetQueryableSelect(filter).ToListAsync(filter?.CancellationToken ?? CancellationToken.None);
         }
 
+        public virtual List<TOut> GetAllWithSelect<TEntity, TOut>(IQueryWithSelect<TEntity, TOut> filter = null) where TEntity : class, IEntity
+        {
+            return GetQueryableSelect(filter).ToList();
+        }
+
         public Task<TOut> GetFirstWithSelectAsync<TEntity, TOut>(IQueryWithSelect<TEntity, TOut> filter = null) where TEntity : class, IEntity
         {
             return GetQueryableSelect(filter).FirstOrDefaultAsync(filter?.CancellationToken ?? CancellationToken.None);
+        }
+
+        public TOut GetFirstWithSelect<TEntity, TOut>(IQueryWithSelect<TEntity, TOut> filter = null) where TEntity : class, IEntity
+        {
+            return GetQueryableSelect(filter).FirstOrDefault();
         }
     }
 }
