@@ -112,7 +112,7 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             {
                 Id = 2,
                 Name = "James",
-                PersonPizzas =  new List<PersonPizza>
+                PersonPizzas = new List<PersonPizza>
                 {
                     new PersonPizza
                     {
@@ -120,6 +120,30 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
                         PizzaId = 3
                     }
                 }
+            }
+        };
+
+        public static List<Person> DuplicatePeople = new List<Person>
+        {
+            new Person
+            {
+                Id = 1,
+                Name = "Name"
+            },
+            new Person
+            {
+                Id = 2,
+                Name = "Name"
+            },
+            new Person
+            {
+                Id = 3,
+                Name = "Name"
+            },
+            new Person
+            {
+                Id = 4,
+                Name = "Name"
             }
         };
 
@@ -148,7 +172,66 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             await repo.SaveAsync();
         }
 
+        private static async Task AddDuplicateMenuItems(DbContextOptions options)
+        {
+            var repo = new Repository<DbContext>(new DbContext(options));
+
+            repo.Create(DuplicatePeople);
+            await repo.SaveAsync();
+        }
+
         #endregion
+
+        [TestMethod]
+        public async Task GetAllDistinctNamesAsyncTest()
+        {
+            var options = GetOptions();
+            var repository = GetReadOnlyRepository(options);
+            await AddDuplicateMenuItems(options);
+
+            var query = new QueryBuilder<Person>()
+                .Select(x => x.Name)
+                .Distinct()
+                .Build();
+
+            var names = await repository.GetAllWithSelectAsync(query);
+
+            Assert.AreEqual("Name", names.First());
+        }
+
+        [TestMethod]
+        public async Task GetDistinctCountIdsAsyncTest()
+        {
+            var options = GetOptions();
+            var repository = GetReadOnlyRepository(options);
+            await AddDuplicateMenuItems(options);
+
+            var query = new QueryBuilder<Person>()
+                .Select(x => x.Id)
+                .Distinct()
+                .Build();
+
+            var count = await repository.GetCountWithSelectAsync(query);
+
+            Assert.AreEqual(4, count);
+        }
+
+        [TestMethod]
+        public async Task GetDistinctCountNamesAsyncTest()
+        {
+            var options = GetOptions();
+            var repository = GetReadOnlyRepository(options);
+            await AddDuplicateMenuItems(options);
+
+            var query = new QueryBuilder<Person>()
+                .Select(x => x.Name)
+                .Distinct()
+                .Build();
+
+            var count = await repository.GetCountWithSelectAsync(query);
+
+            Assert.AreEqual(1, count);
+        }
 
         [TestMethod]
         public async Task GetAllAsyncTest()
@@ -169,7 +252,7 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             Assert.AreEqual(3, inactiveToppings.Count);
 
             // OrderBy
-            var pizzasOrderedByCostQuery = new QueryBuilder<Pizza>().OrderBy( x => x.OrderBy(y => y.Cost)).Build();
+            var pizzasOrderedByCostQuery = new QueryBuilder<Pizza>().OrderBy(x => x.OrderBy(y => y.Cost)).Build();
             var pizzasOrderedByCost = await repository.GetAllAsync(pizzasOrderedByCostQuery);
             Assert.AreEqual(8, pizzasOrderedByCost[0].Cost);
             Assert.AreEqual(10, pizzasOrderedByCost[1].Cost);
@@ -215,7 +298,7 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             Assert.AreEqual(3, inactiveToppings.Count);
 
             // OrderBy
-            var pizzasOrderedByCostQuery = new QueryBuilder<Pizza>().OrderBy( x => x.OrderBy(y => y.Cost)).Build();
+            var pizzasOrderedByCostQuery = new QueryBuilder<Pizza>().OrderBy(x => x.OrderBy(y => y.Cost)).Build();
             var pizzasOrderedByCost = repository.GetAll(pizzasOrderedByCostQuery);
             Assert.AreEqual(8, pizzasOrderedByCost[0].Cost);
             Assert.AreEqual(10, pizzasOrderedByCost[1].Cost);

@@ -54,7 +54,9 @@ namespace CSESoftware.Repository.EntityFrameworkCore
                 throw new ArgumentException("Select not found");
 
             var query = GetQueryable(filter);
-            return query.Select(filter.Select);
+            var select = query.Select(filter.Select);
+
+            return filter.Distinct ? select.Distinct() : select;
         }
 
         public virtual Task<List<TEntity>> GetAllAsync<TEntity>(IQuery<TEntity> filter)
@@ -151,6 +153,11 @@ namespace CSESoftware.Repository.EntityFrameworkCore
         public TOut GetFirstWithSelect<TEntity, TOut>(IQueryWithSelect<TEntity, TOut> filter = null) where TEntity : class, IEntity
         {
             return GetQueryableSelect(filter).FirstOrDefault();
+        }
+
+        public Task<int> GetCountWithSelectAsync<TEntity, TOut>(IQueryWithSelect<TEntity, TOut> filter = null) where TEntity : class, IEntity
+        {
+            return GetQueryableSelect(filter).CountAsync(filter?.CancellationToken ?? CancellationToken.None);
         }
     }
 }
