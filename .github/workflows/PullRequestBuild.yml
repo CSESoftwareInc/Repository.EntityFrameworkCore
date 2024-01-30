@@ -1,7 +1,7 @@
 name: "Pull Request Build"
 
 env:
-  MODERN_SLN: 'CSESoftware.Repository.EntityFrameworkCore/CSESoftware.Repository.EntityFrameworkCore.sln'
+  MODERN_SLN: 'CSESoftware.Repository.EntityFrameworkCore.sln'
 
 on:
   pull_request:
