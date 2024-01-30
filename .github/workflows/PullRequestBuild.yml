@@ -37,4 +37,3 @@ jobs:
 
     - name: Run Unit Tests on Modern Solution
       run: dotnet test "${{ env.MODERN_SLN }}" --no-build --configuration Release --verbosity normal
-
