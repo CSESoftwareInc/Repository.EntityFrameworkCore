@@ -2,6 +2,7 @@ name: "Pull Request Build"
 
 env:
   MODERN_SLN: 'src/CSESoftware.Repository.EntityFrameworkCore.sln'
+  JF_REPO: "cat-cse-nuget-virt"
 
 on:
   pull_request:
@@ -15,11 +16,28 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-        
-    ## Modern build and test steps
+
+    - name: Setup JFrog CLI V3
+      uses: jfrog/setup-jfrog-cli@v3
+      
+    - name: Configure Artifactory
+      env:
+        JF_URL: ${{ secrets.JF_URL }}
+        JF_USER: ${{ secrets.JF_USER }}
+        JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
+      run: |
+        jf c add Artifactory --artifactory-url ${{ env.JF_URL }}/artifactory --user ${{ env.JF_USER }} --password ${{ env.JF_ACCESS_TOKEN }} --interactive=false
+
+    - name: Nuget Restore for Modern App
+      run: |
+        jf nugetc --repo-resolve=${{ env.JF_REPO }} --nuget-v2
+        jf nuget restore  ${{ env.MODERN_SLN }}
 
     - name: Build Modern Solution
-      run: dotnet build "${{ env.MODERN_SLN }}" --configuration Release
+      run: dotnet publish "${{ env.MODERN_SLN }}" --configuration Release
+      env:
+        CI: false
 
     - name: Run Unit Tests on Modern Solution
       run: dotnet test "${{ env.MODERN_SLN }}" --no-build --configuration Release --verbosity normal
+
