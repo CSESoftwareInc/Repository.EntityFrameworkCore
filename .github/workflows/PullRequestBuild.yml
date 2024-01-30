@@ -1,7 +1,7 @@
 name: "Pull Request Build"
 
 env:
-  MODERN_SLN: 'CSESoftware.Repository.EntityFrameworkCore.sln'
+  MODERN_SLN: 'src/CSESoftware.Repository.EntityFrameworkCore.sln'
 
 on:
   pull_request:
@@ -14,12 +14,12 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3
         
     ## Modern build and test steps
 
     - name: Build Modern Solution
-      run: dotnet publish "${{ env.MODERN_SLN }}" --configuration Release --property:FrontEndBuild=Dev
+      run: dotnet publish "${{ env.MODERN_SLN }}" --configuration Release
       env:
         CI: false
 
