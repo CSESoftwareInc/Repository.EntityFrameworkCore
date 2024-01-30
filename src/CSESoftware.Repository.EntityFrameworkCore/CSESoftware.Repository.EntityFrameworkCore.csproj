@@ -6,7 +6,7 @@
     <PackageId>CSESoftware.Repository.EntityFrameworkCore</PackageId>
     <Authors>CSE Software, Inc.</Authors>
     <Copyright>2023 CSE Software, Inc.</Copyright>
-    <Version>2.4.0</Version>
+    <Version>2.5.0-alpha1</Version>
     <PackageIcon>packageIcon.png</PackageIcon>
     <PackageIconUrl />
     <Description>The Entity Framework Core implementation of CSESoftware.Repository.</Description>
