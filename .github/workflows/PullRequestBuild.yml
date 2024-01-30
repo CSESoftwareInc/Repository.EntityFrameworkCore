@@ -19,6 +19,17 @@ jobs:
     - name: Nuget Restore for Modern App
       run: dotnet restore "${{ env.MODERN_SLN }}"
 
+    - name: Setup .NET 8.0 Pre-release SDK
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '8.0'
+        include-prerelease: True
+  
+    - name: Setup .NET 3.1 SDK
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.x'
+
     - name: Build Modern Solution
       run: dotnet publish "${{ env.MODERN_SLN }}" --configuration Release
       env:
