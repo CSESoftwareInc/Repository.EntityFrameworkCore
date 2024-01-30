@@ -19,9 +19,7 @@ jobs:
     ## Modern build and test steps
 
     - name: Build Modern Solution
-      run: dotnet publish "${{ env.MODERN_SLN }}" --configuration Release
-      env:
-        CI: false
+      run: dotnet build "${{ env.MODERN_SLN }}" --configuration Release
 
     - name: Run Unit Tests on Modern Solution
       run: dotnet test "${{ env.MODERN_SLN }}" --no-build --configuration Release --verbosity normal
