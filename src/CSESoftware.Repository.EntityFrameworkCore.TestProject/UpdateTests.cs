@@ -1,16 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CSESoftware.Repository.EntityFrameworkCore.TestProject.Setup;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
 {
-    [TestClass]
     public class UpdateTests : BaseTest
     {
-        [TestMethod]
+        [Fact]
         public async Task UpdateTest()
         {
             var options = GetOptions();
@@ -24,23 +18,21 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             createRepository.Create(initialTopping);
             await createRepository.SaveAsync();
 
-
             var updateRepository = GetRepository(options);
             var topping = await updateRepository.GetFirstAsync<Topping>();
             topping.Name = "Super Canadian Bacon";
             updateRepository.Update(topping);
             await updateRepository.SaveAsync();
 
-
             var readRepository = GetRepository(options);
             var updatedTopping = await readRepository.GetFirstAsync<Topping>();
 
-            Assert.AreEqual("Super Canadian Bacon", updatedTopping.Name);
-            Assert.AreEqual(2.5, updatedTopping.AdditionalCost);
-            Assert.AreNotEqual(initialTopping.ModifiedDate, updatedTopping.ModifiedDate);
+            Assert.Equal("Super Canadian Bacon", updatedTopping.Name);
+            Assert.Equal(2.5, updatedTopping.AdditionalCost);
+            Assert.NotEqual(initialTopping.ModifiedDate, updatedTopping.ModifiedDate);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task UpdateNoActiveOrDateChangeTest()
         {
             var options = GetOptions();
@@ -54,22 +46,20 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             createRepository.Create(initialCrust);
             await createRepository.SaveAsync();
 
-
             var updateRepository = GetRepository(options);
             var crust = await updateRepository.GetFirstAsync<Crust>();
             crust.Name = "Super Thin";
             updateRepository.Update(crust);
             await updateRepository.SaveAsync();
 
-
             var readRepository = GetRepository(options);
             var updatedCrust = await readRepository.GetFirstAsync<Crust>();
 
-            Assert.AreEqual("Super Thin", updatedCrust.Name);
-            Assert.AreEqual(2.5, updatedCrust.AdditionalCost);
+            Assert.Equal("Super Thin", updatedCrust.Name);
+            Assert.Equal(2.5, updatedCrust.AdditionalCost);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task UpdateManyTest()
         {
             var options = GetOptions();
@@ -101,24 +91,22 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             createRepository.Create(toppings);
             await createRepository.SaveAsync();
 
-
             var updateRepository = GetRepository(options);
             var updateToppings = await updateRepository.GetAllAsync<Topping>();
             updateToppings.ForEach(x => x.Name = "Tuna");
             updateRepository.Update(updateToppings);
             await updateRepository.SaveAsync();
 
-
             var readRepository = GetRepository(options);
             var result = (await readRepository.GetAllAsync<Topping>()).ToList();
 
-            Assert.AreEqual(4, result.Count);
-            Assert.AreEqual(2, result.Count(x => Math.Abs(x.AdditionalCost - 0.75) < 0.001));
-            Assert.IsTrue(result.All(x => x.Name.Equals("Tuna")));
-            Assert.IsFalse(result.First(x => Math.Abs(x.AdditionalCost - 0.5) < 0.001).ModifiedDate.Equals(topping1.ModifiedDate));
+            Assert.Equal(4, result.Count);
+            Assert.Equal(2, result.Count(x => Math.Abs(x.AdditionalCost - 0.75) < 0.001));
+            Assert.True(result.All(x => x.Name.Equals("Tuna")));
+            Assert.False(result.First(x => Math.Abs(x.AdditionalCost - 0.5) < 0.001).ModifiedDate.Equals(topping1.ModifiedDate));
         }
 
-        [TestMethod]
+        [Fact]
         public async Task UpdateManyNoActiveOrDateChangeTest()
         {
             var options = GetOptions();
@@ -132,7 +120,6 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             {
                 Name = "Crispy",
                 AdditionalCost = 0.75
-
             };
             var crust3 = new Crust
             {
@@ -151,20 +138,18 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             createRepository.Create(crusts);
             await createRepository.SaveAsync();
 
-
             var updateRepository = GetRepository(options);
             var updateCrust = await updateRepository.GetAllAsync<Crust>();
             updateCrust.ForEach(x => x.AdditionalCost = 0);
             updateRepository.Update(updateCrust);
             await updateRepository.SaveAsync();
 
-
             var readRepository = GetRepository(options);
             var result = (await readRepository.GetAllAsync<Crust>()).ToList();
 
-            Assert.AreEqual(4, result.Count);
-            Assert.AreEqual(4, result.Count(x => Math.Abs(x.AdditionalCost) < 0.001));
-            Assert.AreEqual(1, result.Count(x => x.Name.Equals("Pan")));
+            Assert.Equal(4, result.Count);
+            Assert.Equal(4, result.Count(x => Math.Abs(x.AdditionalCost) < 0.001));
+            Assert.Equal(1, result.Count(x => x.Name.Equals("Pan")));
         }
     }
 }
