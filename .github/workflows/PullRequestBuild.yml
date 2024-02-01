@@ -1,11 +1,11 @@
 name: "Pull Request Build"
 
 env:
-  MODERN_SLN: 'src/CSESoftware.Repository.EntityFrameworkCore.sln'
+  SOLUTION: 'src/CSESoftware.Repository.EntityFrameworkCore.sln'
 
 on:
   pull_request:
-    branches: [ "develop", "release", "master" ]
+    branches: [ "master" ]
 
 jobs:
   build:
@@ -16,24 +16,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
       
-    - name: Nuget Restore for Modern App
-      run: dotnet restore "${{ env.MODERN_SLN }}"
-
-    - name: Setup .NET 8.0 Pre-release SDK
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '8.0'
-        include-prerelease: True
+    - name: Nuget Restore for App
+      run: dotnet restore "${{ env.SOLUTION }}"
   
-    - name: Setup .NET 3.1 SDK
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '3.1.x'
-
-    - name: Build Modern Solution
-      run: dotnet publish "${{ env.MODERN_SLN }}" --configuration Release
+    - name: Build Solution
+      run: dotnet publish "${{ env.SOLUTION }}" --configuration Release
       env:
         CI: false
 
-    - name: Run Unit Tests on Modern Solution
-      run: dotnet test "${{ env.MODERN_SLN }}" --no-build --configuration Release --verbosity normal
+    - name: Run Unit Tests on Solution
+      run: dotnet test "${{ env.SOLUTION }}" --no-build --configuration Release --verbosity normal
