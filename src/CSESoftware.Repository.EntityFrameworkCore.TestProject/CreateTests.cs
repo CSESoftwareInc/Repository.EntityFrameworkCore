@@ -1,16 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CSESoftware.Repository.EntityFrameworkCore.TestProject.Setup;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
 {
-    [TestClass]
     public class CreateTests : BaseTest
     {
-        [TestMethod]
+        [Fact]
         public async Task CreateOneTest()
         {
             var options = GetOptions();
@@ -27,16 +21,16 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var readRepository = GetRepository(options);
             var result = (await readRepository.GetAllAsync<Topping>()).ToList();
 
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual("Canadian Bacon", result.FirstOrDefault()?.Name);
-            Assert.AreEqual(2.5, result.FirstOrDefault()?.AdditionalCost);
-            Assert.IsTrue(result.FirstOrDefault()?.IsActive ?? false);
-            Assert.IsTrue(result.FirstOrDefault()?.CreatedDate > DateTime.UtcNow.AddSeconds(-3));
-            Assert.IsTrue(result.FirstOrDefault()?.ModifiedDate > DateTime.UtcNow.AddSeconds(-3));
-            Assert.IsTrue(result.First().IsActive);
+            Assert.Equal(1, result.Count);
+            Assert.Equal("Canadian Bacon", result.FirstOrDefault()?.Name);
+            Assert.Equal(2.5, result.FirstOrDefault()?.AdditionalCost);
+            Assert.True(result.FirstOrDefault()?.IsActive ?? false);
+            Assert.True(result.FirstOrDefault()?.CreatedDate > DateTime.UtcNow.AddSeconds(-3));
+            Assert.True(result.FirstOrDefault()?.ModifiedDate > DateTime.UtcNow.AddSeconds(-3));
+            Assert.True(result.First().IsActive);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task CreateOneNoActiveOrDateChangeTest()
         {
             var options = GetOptions();
@@ -52,12 +46,12 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var readRepository = GetRepository(options);
             var result = (await readRepository.GetAllAsync<Crust>()).ToList();
 
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual("Pan", result.FirstOrDefault()?.Name);
-            Assert.AreEqual(2.5, result.FirstOrDefault()?.AdditionalCost);
+            Assert.Equal(1, result.Count);
+            Assert.Equal("Pan", result.FirstOrDefault()?.Name);
+            Assert.Equal(2.5, result.FirstOrDefault()?.AdditionalCost);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task CreateManyTest()
         {
             var options = GetOptions();
@@ -85,7 +79,7 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
                 AdditionalCost = 1.25
             };
 
-            var toppings = new List<Topping> {topping1, topping2, topping3, topping4};
+            var toppings = new List<Topping> { topping1, topping2, topping3, topping4 };
 
             var createRepository = GetRepository(options);
             createRepository.Create(toppings);
@@ -94,13 +88,13 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var readRepository = GetRepository(options);
             var result = (await readRepository.GetAllAsync<Topping>()).ToList();
 
-            Assert.AreEqual(4, result.Count);
-            Assert.AreEqual(2, result.Count(x => Math.Abs(x.AdditionalCost - 0.75) < 0.001));
-            Assert.IsFalse(result.Any(x => !x.IsActive));
-            Assert.IsFalse(result.Any(x => x.CreatedDate < DateTime.UtcNow.AddSeconds(-3)));
+            Assert.Equal(4, result.Count);
+            Assert.Equal(2, result.Count(x => Math.Abs(x.AdditionalCost - 0.75) < 0.001));
+            Assert.False(result.Any(x => !x.IsActive));
+            Assert.False(result.Any(x => x.CreatedDate < DateTime.UtcNow.AddSeconds(-3)));
         }
 
-        [TestMethod]
+        [Fact]
         public async Task CreateManyNoActiveOrDateChangeTest()
         {
             var options = GetOptions();
@@ -114,7 +108,6 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             {
                 Name = "Crispy",
                 AdditionalCost = 0.75
-
             };
             var crust3 = new Crust
             {
@@ -127,7 +120,7 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
                 AdditionalCost = 1.25
             };
 
-            var crusts = new List<Crust> {crust1, crust2, crust3, crust4};
+            var crusts = new List<Crust> { crust1, crust2, crust3, crust4 };
 
             var createRepository = GetRepository(options);
             createRepository.Create(crusts);
@@ -136,8 +129,8 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             var readRepository = GetRepository(options);
             var result = (await readRepository.GetAllAsync<Crust>()).ToList();
 
-            Assert.AreEqual(4, result.Count);
-            Assert.AreEqual(2, result.Count(x => Math.Abs(x.AdditionalCost - 0.75) < 0.001));
+            Assert.Equal(4, result.Count);
+            Assert.Equal(2, result.Count(x => Math.Abs(x.AdditionalCost - 0.75) < 0.001));
         }
     }
 }

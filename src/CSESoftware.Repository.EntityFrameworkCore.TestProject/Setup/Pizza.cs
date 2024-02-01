@@ -1,5 +1,4 @@
 ﻿using CSESoftware.Core.Entity;
-using System.Collections.Generic;
 
 namespace CSESoftware.Repository.EntityFrameworkCore.TestProject.Setup
 {
@@ -7,7 +6,6 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject.Setup
     {
         public string Name { get; set; }
         public double Cost { get; set; }
-
 
         public int CrustId { get; set; }
         public Crust Crust { get; set; }

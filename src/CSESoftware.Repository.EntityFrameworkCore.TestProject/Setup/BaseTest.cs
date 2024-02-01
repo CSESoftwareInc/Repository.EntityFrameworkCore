@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace CSESoftware.Repository.EntityFrameworkCore.TestProject.Setup
 {

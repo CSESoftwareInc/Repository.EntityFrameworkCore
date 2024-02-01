@@ -1,14 +1,10 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using CSESoftware.Repository.EntityFrameworkCore.TestProject.Setup;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
 {
-    [TestClass]
     public class DeleteTests : BaseTest
     {
-        [TestMethod]
+        [Fact]
         public async Task DeleteByEntityTest()
         {
             var options = GetOptions();
@@ -21,18 +17,16 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             });
             await repository.SaveAsync();
 
-
             var deleteRepository = GetRepository(options);
             deleteRepository.Delete(await deleteRepository.GetFirstAsync<Topping>());
             await deleteRepository.SaveAsync();
 
-
             var readRepository = GetRepository(options);
-            Assert.AreEqual(false, await readRepository.GetExistsAsync<Topping>(x => x.Id == 1));
-            Assert.AreEqual(0, await readRepository.GetCountAsync<Topping>());
+            Assert.Equal(false, await readRepository.GetExistsAsync<Topping>(x => x.Id == 1));
+            Assert.Equal(0, await readRepository.GetCountAsync<Topping>());
         }
 
-        [TestMethod]
+        [Fact]
         public async Task DeleteByIdTest()
         {
             var options = GetOptions();
@@ -45,18 +39,16 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             });
             await createRepository.SaveAsync();
 
-
             var deleteRepository = GetRepository(options);
             deleteRepository.Delete<Topping, int>(1);
             await deleteRepository.SaveAsync();
 
-
             var readRepository = GetRepository(options);
-            Assert.AreEqual(false, await readRepository.GetExistsAsync<Topping>(x => x.Id == 1));
-            Assert.AreEqual(0, await readRepository.GetCountAsync<Topping>());
+            Assert.Equal(false, await readRepository.GetExistsAsync<Topping>(x => x.Id == 1));
+            Assert.Equal(0, await readRepository.GetCountAsync<Topping>());
         }
 
-        [TestMethod]
+        [Fact]
         public async Task DeleteByListTest()
         {
             var options = GetOptions();
@@ -78,22 +70,20 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             };
 
             var createRepository = GetRepository(options);
-            createRepository.Create(new List<Topping>{topping1, topping2, topping3});
+            createRepository.Create(new List<Topping> { topping1, topping2, topping3 });
             await createRepository.SaveAsync();
-
 
             var deleteRepository = GetRepository(options);
             var toppingsToDelete = await deleteRepository.GetAllAsync<Topping>(x => x.AdditionalCost > 2);
             deleteRepository.Delete(toppingsToDelete);
             await deleteRepository.SaveAsync();
 
-
             var readRepository = GetRepository(options);
-            Assert.AreEqual(topping2.Id, (await readRepository.GetFirstAsync<Topping>()).Id);
-            Assert.AreEqual(1, await readRepository.GetCountAsync<Topping>());
+            Assert.Equal(topping2.Id, (await readRepository.GetFirstAsync<Topping>()).Id);
+            Assert.Equal(1, await readRepository.GetCountAsync<Topping>());
         }
 
-        [TestMethod]
+        [Fact]
         public async Task DeleteByExpressionTest()
         {
             var options = GetOptions();
@@ -115,18 +105,16 @@ namespace CSESoftware.Repository.EntityFrameworkCore.TestProject
             };
 
             var createRepository = GetRepository(options);
-            createRepository.Create(new List<Topping>{topping1, topping2, topping3});
+            createRepository.Create(new List<Topping> { topping1, topping2, topping3 });
             await createRepository.SaveAsync();
-
 
             var deleteRepository = GetRepository(options);
             deleteRepository.Delete<Topping>(x => x.AdditionalCost > 2);
             await deleteRepository.SaveAsync();
 
-
             var readRepository = GetRepository(options);
-            Assert.AreEqual(topping2.Id, (await readRepository.GetFirstAsync<Topping>()).Id);
-            Assert.AreEqual(1, await readRepository.GetCountAsync<Topping>());
+            Assert.Equal(topping2.Id, (await readRepository.GetFirstAsync<Topping>()).Id);
+            Assert.Equal(1, await readRepository.GetCountAsync<Topping>());
         }
     }
 }
