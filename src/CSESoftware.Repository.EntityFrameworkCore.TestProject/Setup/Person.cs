@@ -1,5 +1,4 @@
 ﻿using CSESoftware.Core.Entity;
-using System.Collections.Generic;
 
 namespace CSESoftware.Repository.EntityFrameworkCore.TestProject.Setup
 {
